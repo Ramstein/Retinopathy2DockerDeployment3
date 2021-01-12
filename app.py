@@ -162,9 +162,6 @@ def transformation():
                 'diagnosis': {'S': f"{diagnosis}- {CLASS_NAMES[diagnosis]}"},
                 'regression': {'S': str(predictions['regression'].values)},
                 'ordinal': {'S': str(predictions['ordinal'].values)},
-                # 'public_dns_name': {'S': public_dns_name},
-                # 'launch_time': {'S': str(launch_time)},
-                # 'instanceUpTime': {'S': ""}
             }
             dynamodb_cli = boto3.client('dynamodb', region_name='ap-south-1')
             res = dynamodb_cli.put_item(TableName='retinopathy2', Item=item)
