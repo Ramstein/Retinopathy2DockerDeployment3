@@ -94,7 +94,7 @@ def ping():
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
                            logits=[[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
                                    [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
-                           diagnosis='0- No DR',
+                           # diagnosis='0- No DR',
                            regression=0.40505,
                            ordinal=2.024725)
 
@@ -105,7 +105,7 @@ def home():
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
                            logits=[[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
                                    [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
-                           diagnosis='0- No DR',
+                           # diagnosis='0- No DR',
                            regression=0.40505,
                            ordinal=2.024725)
 
@@ -141,18 +141,18 @@ def transformation():
             CLASS_NAMES = get_class_names(coarse_grading=False)
             for pred, cls in zip(predictions['logits'][0], CLASS_NAMES):
                 logits.append([round(pred, 5), cls])
-            diagnosis = int(predictions['diagnosis'][0])
 
             invocation_time = datetime.now(tz=timezone.utc).strftime('%y-%m-%d %H:%M:%S')
             image_id = predictions['image_id'][0]
-            diagnosis = f"{diagnosis}- {CLASS_NAMES[diagnosis]}"
+            # diagnosis = int(predictions['diagnosis'][0])
+            # diagnosis = f"{diagnosis}- {CLASS_NAMES[diagnosis]}"
             regression = round(predictions['regression'][0], 5)
             ordinal = round(predictions['ordinal'][0], 5)
             item = {
                 'invocation_time': {'S': str(invocation_time)},
                 'image_id': {'S': image_id},
                 'logits': {'S': str(logits)},
-                'diagnosis': {'S': diagnosis},
+                # 'diagnosis': {'S': diagnosis},
                 'regression': {'S': str(regression)},
                 'ordinal': {'S': str(ordinal)},
             }
@@ -160,12 +160,12 @@ def transformation():
             print("""Updating value to dynamodb table""")
             dynamodb_cli = boto3.client('dynamodb', region_name='ap-south-1')
             res = dynamodb_cli.put_item(TableName='retinopathy2', Item=item)
-            img_loc = f"https://diabetic-retinopathy-data-from-radiology.s3.amazonaws.com/image/{image_file.filename}"
             upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region, public=True)
+            img_loc = f"https://diabetic-retinopathy-data-from-radiology.s3.amazonaws.com/image/{image_file.filename}"
             return render_template("index.html", image_loc=img_loc,
                                    image_id=image_id,
                                    logits=logits,
-                                   diagnosis=diagnosis,
+                                   # diagnosis=diagnosis,
                                    regression=regression,
                                    ordinal=ordinal)
 
@@ -173,7 +173,7 @@ def transformation():
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
                            logits=[[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
                                    [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
-                           diagnosis='0- No DR',
+                           # diagnosis='0- No DR',
                            regression=0.40505,
                            ordinal=2.024725)
 
