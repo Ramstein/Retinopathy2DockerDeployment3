@@ -23,7 +23,6 @@ from Retinopathy2.retinopathy.train_utils import report_checkpoint
 
 num_workers = multiprocessing.cpu_count()
 params = {}
-CLASS_NAMES = []
 
 
 def input_fn():
@@ -77,9 +76,7 @@ def model_fn(model_dir, model_name=None, checkpoint_fname='', apply_softmax=True
             print("Quitting, specify the model_name.")
             return
     coarse_grading = params.get('coarse', False)
-    CLASS_NAMES = get_class_names(coarse_grading=coarse_grading)
-    num_classes = len(CLASS_NAMES)
-    model = get_model(model_name, pretrained=False, num_classes=num_classes)
+    model = get_model(model_name, pretrained=False, num_classes=len(get_class_names(coarse_grading=coarse_grading)))
     unpack_checkpoint(checkpoint, model=model)
     report_checkpoint(checkpoint)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
