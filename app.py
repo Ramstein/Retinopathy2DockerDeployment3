@@ -7,9 +7,12 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import os
+from datetime import datetime
+from datetime import timezone
 from os import path, makedirs
 from shutil import disk_usage
 
+import boto3
 import flask
 import requests
 import werkzeug
@@ -134,6 +137,8 @@ def transformation():
             #                }
             print("rendering index.html with predictions and image file, predictions=", predictions)
 
+            print(predictions.head())
+
             logits = []
             CLASS_NAMES = get_class_names(coarse_grading=False)
             for pred, cls in zip(predictions['logits'][0], CLASS_NAMES):
@@ -146,6 +151,24 @@ def transformation():
                             regression=predictions['regression'].values,
                             ordinal=predictions['ordinal'].values)
             upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
+
+            invocation_time = datetime.now(tz=timezone.utc).strftime('%y-%m-%d %H:%M:%S')
+
+            """Updating value to dynamodb table"""
+            item = {
+                'invocation_time': {'S': str(invocation_time)},
+                'image_id': {'S': predictions['image_id']},
+                'logits': {'S': str(logits)},
+                'diagnosis': {'S': f"{diagnosis}- {CLASS_NAMES[diagnosis]}"},
+                'regression': {'S': predictions['regression']},
+                'ordinal': {'S': predictions['ordinal']},
+                # 'public_dns_name': {'S': public_dns_name},
+                # 'launch_time': {'S': str(launch_time)},
+                # 'instanceUpTime': {'S': ""}
+            }
+            dynamodb_cli = boto3.client('dynamodb')
+            res = dynamodb_cli.put_item(TableName='retinopathy2', Item=item)
+
     return render_template("index.html", image_loc=None,
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
                            logits=[[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
