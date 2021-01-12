@@ -136,7 +136,7 @@ def transformation():
 
             logits = []
             CLASS_NAMES = get_class_names(coarse_grading=False)
-            for pred, cls in zip(predictions['logits'], CLASS_NAMES):
+            for pred, cls in zip(predictions['logits'][0], CLASS_NAMES):
                 logits.append([round(pred, 5), cls])
             diagnosis = int(predictions['diagnosis'].values)
             render_template("index.html", image_loc=image_file.filename,
