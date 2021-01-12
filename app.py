@@ -157,11 +157,11 @@ def transformation():
             """Updating value to dynamodb table"""
             item = {
                 'invocation_time': {'S': str(invocation_time)},
-                'image_id': {'S': predictions['image_id'].values},
+                'image_id': {'S': str(predictions['image_id'].values)},
                 'logits': {'S': str(logits)},
                 'diagnosis': {'S': f"{diagnosis}- {CLASS_NAMES[diagnosis]}"},
-                'regression': {'S': predictions['regression'].values},
-                'ordinal': {'S': predictions['ordinal'].values},
+                'regression': {'S': str(predictions['regression'].values)},
+                'ordinal': {'S': str(predictions['ordinal'].values)},
                 # 'public_dns_name': {'S': public_dns_name},
                 # 'launch_time': {'S': str(launch_time)},
                 # 'instanceUpTime': {'S': ""}
