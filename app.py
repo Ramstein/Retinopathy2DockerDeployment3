@@ -136,8 +136,6 @@ def transformation():
             #                'diagnosis': 0,
             #                }
             print("rendering index.html with predictions and image file, predictions.")
-            print(predictions.head())
-
 
             logits = []
             CLASS_NAMES = get_class_names(coarse_grading=False)
@@ -145,30 +143,27 @@ def transformation():
                 logits.append([round(pred, 5), cls])
             diagnosis = int(predictions['diagnosis'][0])
 
-
             invocation_time = datetime.now(tz=timezone.utc).strftime('%y-%m-%d %H:%M:%S')
             item = {
                 'invocation_time': {'S': str(invocation_time)},
                 'image_id': {'S': str(predictions['image_id'][0])},
                 'logits': {'S': str(logits)},
                 'diagnosis': {'S': f"{diagnosis}- {CLASS_NAMES[diagnosis]}"},
-                'regression': {'N': str(predictions['regression'][0])},
-                'ordinal': {'N': str(predictions['ordinal'][0])},
+                'regression': {'N': predictions['regression'][0]},
+                'ordinal': {'N': predictions['ordinal'][0]},
             }
-
             print("Item: ", item)
-            render_template("index.html", image_loc=image_file.filename,
-                            image_id=predictions['image_id'][0],
-                            logits=logits,
-                            diagnosis=f"{diagnosis}- {CLASS_NAMES[diagnosis]}",
-                            regression=predictions['regression'][0],
-                            ordinal=predictions['ordinal'][0])
-            upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
-
             print("""Updating value to dynamodb table""")
-
             dynamodb_cli = boto3.client('dynamodb', region_name='ap-south-1')
             res = dynamodb_cli.put_item(TableName='retinopathy2', Item=item)
+            upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
+
+            return render_template("index.html", image_loc=image_file.filename,
+                                   image_id=predictions['image_id'][0],
+                                   logits=logits,
+                                   diagnosis=f"{diagnosis}- {CLASS_NAMES[diagnosis]}",
+                                   regression=round(predictions['regression'][0], 5),
+                                   ordinal=round(predictions['ordinal'][0], 5))
 
     return render_template("index.html", image_loc=None,
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
