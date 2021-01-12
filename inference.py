@@ -150,7 +150,6 @@ def predict_fn(model, need_features=False, img_loc='', data_dir=''):
     predictions = DataFrame.from_dict(predictions)
     predictions['diagnosis'] = predictions['diagnosis'].apply(lambda x: float(x))
     predictions['diagnosis'] = predictions['diagnosis'].apply(regression_to_class).apply(int)
-    predictions['logits'] = predictions['logits'].apply(lambda x: round(x, 5))
     # predictions['logits'] = predictions['logits'][0].softmax(dim=1)
     del dataset, data_loader
     return predictions
