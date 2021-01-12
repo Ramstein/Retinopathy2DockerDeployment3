@@ -135,34 +135,38 @@ def transformation():
             #                'ordinal': 98,
             #                'diagnosis': 0,
             #                }
-            print("rendering index.html with predictions and image file, predictions=", predictions)
-
+            print("rendering index.html with predictions and image file, predictions.")
             print(predictions.head())
+
 
             logits = []
             CLASS_NAMES = get_class_names(coarse_grading=False)
             for pred, cls in zip(predictions['logits'][0], CLASS_NAMES):
                 logits.append([round(pred, 5), cls])
-            diagnosis = int(predictions['diagnosis'].values)
-            render_template("index.html", image_loc=image_file.filename,
-                            image_id=predictions['image_id'].values,
-                            logits=logits,
-                            diagnosis=f"{diagnosis}- {CLASS_NAMES[diagnosis]}",
-                            regression=predictions['regression'].values,
-                            ordinal=predictions['ordinal'].values)
-            upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
+            diagnosis = int(predictions['diagnosis'][0])
+
 
             invocation_time = datetime.now(tz=timezone.utc).strftime('%y-%m-%d %H:%M:%S')
-
-            """Updating value to dynamodb table"""
             item = {
                 'invocation_time': {'S': str(invocation_time)},
-                'image_id': {'S': str(predictions['image_id'].values)},
+                'image_id': {'S': str(predictions['image_id'][0])},
                 'logits': {'S': str(logits)},
                 'diagnosis': {'S': f"{diagnosis}- {CLASS_NAMES[diagnosis]}"},
-                'regression': {'S': str(predictions['regression'].values)},
-                'ordinal': {'S': str(predictions['ordinal'].values)},
+                'regression': {'N': str(predictions['regression'][0])},
+                'ordinal': {'N': str(predictions['ordinal'][0])},
             }
+
+            print("Item: ", item)
+            render_template("index.html", image_loc=image_file.filename,
+                            image_id=predictions['image_id'][0],
+                            logits=logits,
+                            diagnosis=f"{diagnosis}- {CLASS_NAMES[diagnosis]}",
+                            regression=predictions['regression'][0],
+                            ordinal=predictions['ordinal'][0])
+            upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
+
+            print("""Updating value to dynamodb table""")
+
             dynamodb_cli = boto3.client('dynamodb', region_name='ap-south-1')
             res = dynamodb_cli.put_item(TableName='retinopathy2', Item=item)
 
