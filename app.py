@@ -144,13 +144,17 @@ def transformation():
             diagnosis = int(predictions['diagnosis'][0])
 
             invocation_time = datetime.now(tz=timezone.utc).strftime('%y-%m-%d %H:%M:%S')
+            image_id = predictions['image_id'][0]
+            diagnosis = f"{diagnosis}- {CLASS_NAMES[diagnosis]}"
+            regression = round(predictions['regression'][0], 5)
+            ordinal = round(predictions['ordinal'][0], 5)
             item = {
                 'invocation_time': {'S': str(invocation_time)},
-                'image_id': {'S': str(predictions['image_id'][0])},
+                'image_id': {'S': image_id},
                 'logits': {'S': str(logits)},
-                'diagnosis': {'S': f"{diagnosis}- {CLASS_NAMES[diagnosis]}"},
-                'regression': {'N': predictions['regression'][0]},
-                'ordinal': {'N': predictions['ordinal'][0]},
+                'diagnosis': {'S': diagnosis},
+                'regression': {'N': regression},
+                'ordinal': {'N': ordinal},
             }
             print("Item: ", item)
             print("""Updating value to dynamodb table""")
@@ -159,11 +163,11 @@ def transformation():
             upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
 
             return render_template("index.html", image_loc=image_file.filename,
-                                   image_id=predictions['image_id'][0],
+                                   image_id=image_id,
                                    logits=logits,
-                                   diagnosis=f"{diagnosis}- {CLASS_NAMES[diagnosis]}",
-                                   regression=round(predictions['regression'][0], 5),
-                                   ordinal=round(predictions['ordinal'][0], 5))
+                                   diagnosis=diagnosis,
+                                   regression=regression,
+                                   ordinal=ordinal)
 
     return render_template("index.html", image_loc=None,
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
