@@ -145,7 +145,7 @@ def transformation():
                 logits.append([round(pred, 5), cls])
             diagnosis = int(predictions['diagnosis'].values)
             render_template("index.html", image_loc=image_file.filename,
-                            image_id=predictions['image_id'],
+                            image_id=predictions['image_id'].values,
                             logits=logits,
                             diagnosis=f"{diagnosis}- {CLASS_NAMES[diagnosis]}",
                             regression=predictions['regression'].values,
@@ -157,16 +157,16 @@ def transformation():
             """Updating value to dynamodb table"""
             item = {
                 'invocation_time': {'S': str(invocation_time)},
-                'image_id': {'S': predictions['image_id']},
+                'image_id': {'S': predictions['image_id'].values},
                 'logits': {'S': str(logits)},
                 'diagnosis': {'S': f"{diagnosis}- {CLASS_NAMES[diagnosis]}"},
-                'regression': {'S': predictions['regression']},
-                'ordinal': {'S': predictions['ordinal']},
+                'regression': {'S': predictions['regression'].values},
+                'ordinal': {'S': predictions['ordinal'].values},
                 # 'public_dns_name': {'S': public_dns_name},
                 # 'launch_time': {'S': str(launch_time)},
                 # 'instanceUpTime': {'S': ""}
             }
-            dynamodb_cli = boto3.client('dynamodb')
+            dynamodb_cli = boto3.client('dynamodb', region_name='ap-south-1')
             res = dynamodb_cli.put_item(TableName='retinopathy2', Item=item)
 
     return render_template("index.html", image_loc=None,
