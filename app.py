@@ -136,15 +136,15 @@ def transformation():
 
             logits = []
             CLASS_NAMES = get_class_names(coarse_grading=False)
-            for pred, cls in zip(predictions['logits'][0], CLASS_NAMES):
-                logits.append([round(pred, 5), cls])
+            for pred, cls in zip(predictions['logits'], CLASS_NAMES):
+                logits.append([pred, cls])
 
             render_template("index.html", image_loc=image_file.filename,
-                            image_id=predictions['image_id'][0],
+                            image_id=predictions['image_id'],
                             logits=logits,
-                            diagnosis=str(predictions['diagnosis']) + "- " + CLASS_NAMES[predictions['diagnosis']],
-                            regression=predictions['regression'],
-                            ordinal=predictions['ordinal'])
+                            diagnosis=str(predictions['diagnosis'].values) + "- " + CLASS_NAMES[predictions['diagnosis'].values],
+                            regression=predictions['regression'].values,
+                            ordinal=predictions['ordinal'].values)
             upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
     return render_template("index.html", image_loc=None,
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
