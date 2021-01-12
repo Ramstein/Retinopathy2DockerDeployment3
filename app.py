@@ -53,7 +53,7 @@ class ClassificationService(object):
     def cleanDirectory(cls):
         space_left = disk_usage('/').free / 1e9
         if space_left < 1:
-            print(f", {space_left} GB of space left, so cleaning {data_dir} dir")
+            print(f"{space_left} GB of space left so cleaning {data_dir} dir")
             for root, dirs, files in os.walk(data_dir):
                 for f in files:
                     os.unlink(os.path.join(root, f))
@@ -153,16 +153,16 @@ def transformation():
                 'image_id': {'S': image_id},
                 'logits': {'S': str(logits)},
                 'diagnosis': {'S': diagnosis},
-                'regression': {'N': regression},
-                'ordinal': {'N': ordinal},
+                'regression': {'S': str(regression)},
+                'ordinal': {'S': str(ordinal)},
             }
             print("Item: ", item)
             print("""Updating value to dynamodb table""")
             dynamodb_cli = boto3.client('dynamodb', region_name='ap-south-1')
             res = dynamodb_cli.put_item(TableName='retinopathy2', Item=item)
-            upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
-
-            return render_template("index.html", image_loc=image_file.filename,
+            img_loc = f"https://diabetic-retinopathy-data-from-radiology.s3.amazonaws.com/image/{image_file.filename}"
+            upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region, public=True)
+            return render_template("index.html", image_loc=img_loc,
                                    image_id=image_id,
                                    logits=logits,
                                    diagnosis=diagnosis,

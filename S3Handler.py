@@ -9,19 +9,21 @@ from botocore.exceptions import ClientError
 from tqdm import tqdm
 
 
-
-
-def upload_to_s3(channel, filepath, bucket, region=''):
+def upload_to_s3(channel, filepath, bucket, region='', public=False):
     s3 = boto3.resource('s3', region_name=region)
     data = open(filepath, "rb")
     key = channel + '/' + str(filepath).split('/')[-1]
-    print("Uploading file {} to s3://{}/{}".format(filepath, bucket, channel))
-    s3.Bucket(bucket).put_object(Key=key, Body=data)
+    if public:
+        print(f"Uploading file {filepath} to s3://{bucket}/{channel} with ACL='public-read'")
+        s3.Bucket(bucket).put_object(Key=key, Body=data, ACL='public-read')
+    else:
+        print(f"Uploading file {filepath} to s3://{bucket}/{channel}")
+        s3.Bucket(bucket).put_object(Key=key, Body=data)
 
 
 def upload_dir_to_s3(bucket, s3_folder, dir_to_upload, region=''):
     s3_client = boto3.client('s3', region_name=region)
-    print("Uploading {} to s3://{}/{}".format(dir_to_upload, bucket, s3_folder))
+    print(f"Uploading {dir_to_upload} to s3://{bucket}/{s3_folder}")
     # enumerate local files recursively
     for root, dirs, files in os.walk(dir_to_upload):
         for filename in tqdm(files):
