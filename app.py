@@ -128,6 +128,7 @@ def transformation():
             #                'regression': 4545,
             #                'ordinal': 98,
             #                'features': 'ghaf',
+            #                   'diagnosis':0,
             #                }
             print("rendering index.html with predictions and image file, predictions=", predictions)
             logits = ""

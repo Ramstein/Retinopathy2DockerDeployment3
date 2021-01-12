@@ -9,7 +9,6 @@ import torch
 from catalyst.utils import unpack_checkpoint, load_checkpoint
 from pandas import DataFrame
 from pytorch_toolbelt.utils.torch_utils import to_numpy
-from sklearn.metrics import cohen_kappa_score
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -18,7 +17,7 @@ from Retinopathy2.retinopathy.augmentations import get_test_transform
 from Retinopathy2.retinopathy.dataset import RetinopathyDataset, get_class_names
 from Retinopathy2.retinopathy.factory import get_model
 from Retinopathy2.retinopathy.inference import ApplySoftmaxToLogits, FlipLRMultiheadTTA, Flip4MultiheadTTA, \
-    MultiscaleFlipLRMultiheadTTA, compute_cdf, reg_predictions_to_submission, reg_cdf_predictions_to_submission
+    MultiscaleFlipLRMultiheadTTA
 from Retinopathy2.retinopathy.models.common import regression_to_class
 from Retinopathy2.retinopathy.train_utils import report_checkpoint
 
@@ -152,16 +151,21 @@ def predict_fn(model, need_features=False, img_loc='', data_dir=''):
 
     predictions['diagnosis'] = predictions['diagnosis'].apply(lambda x: float(x))
 
-    diagnosis = reg_predictions_to_submission(predictions)['diagnosis'].values
-    score = cohen_kappa_score(diagnosis, dataset.targets, weights='quadratic')
-    predictions['score'] = score
-    print('score:', score)
-
-    cdf = compute_cdf(dataset.targets)
-    cdf_diagnosis = reg_cdf_predictions_to_submission(predictions, cdf)['diagnosis'].values
-    cdf_score = cohen_kappa_score(cdf_diagnosis, dataset.targets, weights='quadratic')
-    predictions['cdf_score'] = cdf_score
-    print('cdf_score:', cdf_score)
+    print("dataset", dataset)
+    try:
+        print('dataset.targets', dataset.targets)
+    except Exception as e:
+        print(e)
+    # diagnosis = reg_predictions_to_submission(predictions)['diagnosis'].values
+    # score = cohen_kappa_score(diagnosis, dataset.targets, weights='quadratic')
+    # predictions['score'] = score
+    # print('score:', score)
+    #
+    # cdf = compute_cdf(dataset.targets)
+    # cdf_diagnosis = reg_cdf_predictions_to_submission(predictions, cdf)['diagnosis'].values
+    # cdf_score = cohen_kappa_score(cdf_diagnosis, dataset.targets, weights='quadratic')
+    # predictions['cdf_score'] = cdf_score
+    # print('cdf_score:', cdf_score)
 
     predictions['diagnosis'] = predictions['diagnosis'].apply(regression_to_class).apply(int)
     print(predictions)
