@@ -148,30 +148,8 @@ def predict_fn(model, need_features=False, img_loc='', data_dir=''):
             predictions['features'].extend(to_numpy(outputs['features']).tolist())
 
     predictions = DataFrame.from_dict(predictions)
-
     predictions['diagnosis'] = predictions['diagnosis'].apply(lambda x: float(x))
-
-    print("dataset", dataset)
-    try:
-        print('dataset.targets', dataset.targets)
-    except Exception as e:
-        print(e)
-    # diagnosis = reg_predictions_to_submission(predictions)['diagnosis'].values
-    # score = cohen_kappa_score(diagnosis, dataset.targets, weights='quadratic')
-    # predictions['score'] = score
-    # print('score:', score)
-    #
-    # cdf = compute_cdf(dataset.targets)
-    # cdf_diagnosis = reg_cdf_predictions_to_submission(predictions, cdf)['diagnosis'].values
-    # cdf_score = cohen_kappa_score(cdf_diagnosis, dataset.targets, weights='quadratic')
-    # predictions['cdf_score'] = cdf_score
-    # print('cdf_score:', cdf_score)
-
     predictions['diagnosis'] = predictions['diagnosis'].apply(regression_to_class).apply(int)
-    print(predictions)
-
-    predictions['logits'] = predictions['logits'][0].softmax(dim=1)
-    print(predictions)
-
+    # predictions['logits'] = predictions['logits'][0].softmax(dim=1)
     del dataset, data_loader
     return predictions

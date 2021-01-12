@@ -16,6 +16,7 @@ import werkzeug
 from flask import render_template
 from flask import request
 
+from Retinopathy2.retinopathy.dataset import get_class_names
 from S3Handler import upload_to_s3, download_from_s3
 from inference import model_fn, predict_fn
 
@@ -86,19 +87,24 @@ def ping():
 
     health = ClassificationService.get_model() is not None  # You can insert a health check here
     # status = 200 if health else 404
-    return render_template("index.html", prediction=0, image_loc=None)
-    # return flask.Response(response='\n', status=status, mimetype='application/json')
+    return render_template("index.html", image_loc=None,
+                           image_id="static/img/10011_right_820x615.png".split('/')[-1],
+                           logits=[[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
+                                   [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
+                           diagnosis='0- No DR',
+                           regression=0.40505,
+                           ordinal=2.024725)
 
 
 @app.route('/')
 def home():
     return render_template("index.html", image_loc=None,
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
-                           scale=0,
-                           severity="No DR",
-                           logits=0,
-                           regression=0,
-                           ordinal=0)
+                           logits=[[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
+                                   [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
+                           diagnosis='0- No DR',
+                           regression=0.40505,
+                           ordinal=2.024725)
 
 
 @app.route('/', methods=['POST'])
@@ -111,7 +117,6 @@ def transformation():
     ClassificationService.cleanDirectory()
 
     print(f'Found a {request.method} request for prediction...')
-
     if request.method == "POST":
         image_file = request.files["image"]
         if image_file:
@@ -123,34 +128,31 @@ def transformation():
             predictions = ClassificationService.InputPredictOutput(img_loc, model=model)
             # predictions = {'image_id': "/home/endpoint/data/test.png",  # # predictions is a dict
             #                'logits': 65651,
-            #                'score': 15,
-            #                'cdf_score': 45,
             #                'regression': 4545,
             #                'ordinal': 98,
-            #                'features': 'ghaf',
-            #                   'diagnosis':0,
+            #                'diagnosis': 0,
             #                }
             print("rendering index.html with predictions and image file, predictions=", predictions)
-            logits = ""
-            for l in predictions['logits'][0]:
-                logits = logits + ", " + str(round(l, 6))
+
+            logits = []
+            CLASS_NAMES = get_class_names(coarse_grading=False)
+            for pred, cls in zip(predictions['logits'][0], CLASS_NAMES):
+                logits.append([round(pred, 5), cls])
 
             render_template("index.html", image_loc=image_file.filename,
                             image_id=predictions['image_id'][0],
-                            scale=0,
-                            severity='No DR',
                             logits=logits,
-                            regression=round(predictions['regression'][0], 6),
-                            ordinal=round(predictions['ordinal'][0], 6))
-            upload_to_s3(channel="image", filepath=img_loc,
-                         bucket=data_bucket, region=region)
+                            diagnosis=str(predictions['diagnosis']) + "- " + CLASS_NAMES[predictions['diagnosis']],
+                            regression=predictions['regression'],
+                            ordinal=predictions['ordinal'])
+            upload_to_s3(channel="image", filepath=img_loc, bucket=data_bucket, region=region)
     return render_template("index.html", image_loc=None,
                            image_id="static/img/10011_right_820x615.png".split('/')[-1],
-                           scale=0,
-                           severity="No DR",
-                           logits=0,
-                           regression=0,
-                           ordinal=0)
+                           logits=[[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
+                                   [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
+                           diagnosis='0- No DR',
+                           regression=0.40505,
+                           ordinal=2.024725)
 
 
 if __name__ == "__main__":
