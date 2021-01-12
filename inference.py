@@ -170,7 +170,8 @@ def predict_fn(model, need_features=False, img_loc='', data_dir=''):
     predictions['diagnosis'] = predictions['diagnosis'].apply(regression_to_class).apply(int)
     print(predictions)
 
-    predictions['logits'] = predictions['logits'].softmax(dim=1)
+    predictions['logits'] = predictions['logits'][0].softmax(dim=1)
+    print(predictions)
 
     del dataset, data_loader
     return predictions
