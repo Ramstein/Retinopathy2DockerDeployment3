@@ -280,19 +280,19 @@ def transformation():
                 for pred, cls in zip(predictions['logits'][i], CLASS_NAMES):
                     logits.append([round(pred, 5), cls])
 
-                img_loc = f"https://diabetic-retinopathy-data-from-radiology.s3.amazonaws.com/image/{image_locs[i].split('/')[-1]}"
+                img_url = f"https://diabetic-retinopathy-data-from-radiology.s3.amazonaws.com/image/{image_locs[i].split('/')[-1]}"
                 image_id = predictions['image_id'][i]
                 diagnosis = int(predictions['diagnosis'][i])
                 # diagnosis = f"{diagnosis}- {CLASS_NAMES[diagnosis]}"
                 regression = round(predictions['regression'][i], 5)
                 ordinal = round(predictions['ordinal'][i], 5)
-                preds_html.append([img_loc, image_id, logits, diagnosis, regression, ordinal])
+                preds_html.append([img_url, image_id, logits, diagnosis, regression, ordinal])
                 item = {
                     'invocation_time': {'S': str(invocation_time)},
                     # 'user_id': {'S', str(current_user.id)},
                     # 'name': {'S', str(current_user.name)},
                     # 'email': {'S', str(current_user.email)},
-                    'image_id': {'S': image_id},
+                    'img_url': {'S', img_url},
                     'logits': {'S': str(logits)},
                     'diagnosis': {'S': str(diagnosis)},
                     'regression': {'S': str(regression)},
