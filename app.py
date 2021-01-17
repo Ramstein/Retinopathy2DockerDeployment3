@@ -253,7 +253,6 @@ def transformation():
         image_locs = []
         if image_files:
             print(f'Saving image file')
-            print(image_files)
             image_file = image_files
             # for image_file in image_files:
             img_path = os.path.join(data_dir, image_file.filename)
@@ -277,7 +276,7 @@ def transformation():
                 # diagnosis = f"{diagnosis}- {CLASS_NAMES[diagnosis]}"
                 regression = round(predictions['regression'][i], 5)
                 ordinal = round(predictions['ordinal'][i], 5)
-                preds_html[i].append([img_loc, image_id, logits, diagnosis, regression, ordinal])
+                preds_html.append([img_loc, image_id, logits, diagnosis, regression, ordinal])
                 item = {
                     'invocation_time': {'S': str(invocation_time)},
                     # 'user_id': {'S', str(current_user.id)},
@@ -285,7 +284,7 @@ def transformation():
                     # 'email': {'S', str(current_user.email)},
                     'image_id': {'S': image_id},
                     'logits': {'S': str(logits)},
-                    'diagnosis': {'S': diagnosis},
+                    'diagnosis': {'S': str(diagnosis)},
                     'regression': {'S': str(regression)},
                     'ordinal': {'S': str(ordinal)},
                 }
