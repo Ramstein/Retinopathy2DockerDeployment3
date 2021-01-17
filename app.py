@@ -289,10 +289,10 @@ def transformation():
                 preds_html.append([img_url, image_id, logits, diagnosis, regression, ordinal])
                 item = {
                     'invocation_time': {'S': str(invocation_time)},
-                    # 'user_id': {'S', str(current_user.id)},
-                    # 'name': {'S', str(current_user.name)},
-                    # 'email': {'S', str(current_user.email)},
-                    'img_url': {'S', img_url},
+                    # 'user_id': {'S': str(current_user.id)},
+                    # 'name': {'S': str(current_user.name)},
+                    # 'email': {'S': str(current_user.email)},
+                    'img_url': {'S': img_url},
                     'logits': {'S': str(logits)},
                     'diagnosis': {'S': str(diagnosis)},
                     'regression': {'S': str(regression)},
