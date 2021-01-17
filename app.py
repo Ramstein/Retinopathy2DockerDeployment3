@@ -258,7 +258,7 @@ def transformation():
 
     print(f'Found a {request.method} request for prediction...')
     if request.method == "POST":
-        image_files = request.files.getlist["images[]"]
+        image_files = request.files.getlist("files[]")
         if image_files:
             image_locs = []
             print(f'Saving image file')
