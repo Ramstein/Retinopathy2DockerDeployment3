@@ -22,6 +22,7 @@ from flask_login import (
     logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
+from werkzeug.utils import secure_filename
 
 from Retinopathy2.retinopathy.dataset import get_class_names
 from S3Handler import download_from_s3
@@ -50,6 +51,7 @@ model_dir = '/home/model'
 
 data_bucket = "diabetic-retinopathy-data-from-radiology"
 data_dir = '/home/endpoint/data'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', '.tif'}
 
 need_features = False
 tta = None
@@ -60,6 +62,9 @@ debug = False
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+
+app.config['UPLOAD_FOLDER'] = data_dir
+app.config['MAX_CONTENT_LENGTH'] = 20 * 4096 * 4096
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -243,21 +248,26 @@ class ClassificationService(object):
             cls.s3_res_bucket.put_object(Key=key, Body=data, ACL='public-read')
 
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.route('/', methods=['POST'])
 def transformation():
     ClassificationService.cleanDirectory()
 
     print(f'Found a {request.method} request for prediction...')
     if request.method == "POST":
-        image_files = request.files["image"]
-        image_locs = []
+        image_files = request.files.getlist["images[]"]
         if image_files:
+            image_locs = []
             print(f'Saving image file')
-            image_file = image_files
-            # for image_file in image_files:
-            img_path = os.path.join(data_dir, image_file.filename)
-            image_locs.append(img_path)
-            image_file.save(img_path)
+            for image in image_files:
+                if image and allowed_file(image.filename):
+                    img_path = os.path.join(data_dir, secure_filename(image.filename))
+                    image_locs.append(img_path)
+                    image.save(img_path)
+
             model = ClassificationService.get_model()
             predictions = ClassificationService.InputPredictOutput(model=model, image_locs=image_locs)
             print("rendering index.html with predictions and image file,")
@@ -312,4 +322,3 @@ if __name__ == "__main__":
     print(f'Initialising app on {requests.get("http://ip.42.pl/raw").text}:{port} with dubug={debug}')
     app.run(host="0.0.0.0", port=port, debug=debug)  # for running on instances
     # app.run(host="0.0.0.0", port=port, debug=debug, ssl_context="adhoc")  # for running on instances
-    # app.run(debug=True, ssl_context="adhoc")
