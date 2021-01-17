@@ -53,6 +53,7 @@
 
 
 
+
 </style>
 
 <body>
@@ -63,20 +64,20 @@
     <input class="form-control form-control-dark mr-sm-2 w-100" type="text" placeholder="Search" aria-label="Search">
     <ul class="navbar-nav px-3">
 
-        {% if user_authenticated %}
+        <!--        {% if user_authenticated %}-->
 
         <div class="d-flex justify-content-between">
-            <p style="background-color:#343A40;color:white;">{{current_user.name}}</p>
+            <!--            <p style="background-color:#343A40;color:white;">{{current_user.name}}</p>-->
             <div>
-                <img src={{current_user.profile_pic}} class="wdn-stretch rounded-corners left_margin"
-                     width="40" height="40" alt="Google profile pic"/>
+                <!--                <img src={{current_user.profile_pic}} class="wdn-stretch rounded-corners left_margin"-->
+                <!--                     width="40" height="40" alt="Google profile pic"/>-->
 
             </div>
             <li class="nav-item text-nowrap">
-                <a class="button left_margin" href="/logout">Logout</a>
-                {% else %}
-                <a class="button left_margin" href="/login">Google Login</a>
-                {% endif %}
+                <!--                <a class="button left_margin" href="/logout">Logout</a>-->
+                <!--                {% else %}-->
+                <!--                <a class="button left_margin" href="/login">Google Login</a>-->
+                <!--                {% endif %}-->
             </li>
         </div>
     </ul>
@@ -305,6 +306,7 @@
 
 
 
+
 </script>
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/popper.min.js"></script>
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/bootstrap.min.js"></script>
@@ -313,6 +315,7 @@
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/feather.min.js"></script>
 <script>
 		feather.replace()
+
 
 
 

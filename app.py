@@ -1,9 +1,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import json
 import os
-import sqlite3
 from datetime import datetime
 from datetime import timezone
 from os import path, makedirs
@@ -15,29 +13,24 @@ import werkzeug
 from flask import Flask, redirect, request, url_for
 from flask import render_template
 from flask_login import (
-    LoginManager,
     current_user,
     login_required,
-    login_user,
     logout_user,
 )
-from oauthlib.oauth2 import WebApplicationClient
 
 from Retinopathy2.retinopathy.dataset import get_class_names
 from S3Handler import download_from_s3
-from db import init_db_command
 from inference import model_fn, predict_fn
-from user import User
 
 # GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
 # GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
 
-GOOGLE_CLIENT_ID = ""
-GOOGLE_CLIENT_SECRET = ""
-
-GOOGLE_DISCOVERY_URL = (
-    "https://accounts.google.com/.well-known/openid-configuration"
-)
+# GOOGLE_CLIENT_ID = ""
+# GOOGLE_CLIENT_SECRET = ""
+#
+# GOOGLE_DISCOVERY_URL = (
+#     "https://accounts.google.com/.well-known/openid-configuration"
+# )
 
 '''Not Changing variables'''
 region = 'us-east-1'
@@ -55,22 +48,24 @@ need_features = False
 tta = None
 
 apply_softmax = True
-port = 80
-debug = True
+port = 8080
+debug = False
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
-login_manager = LoginManager()
-login_manager.init_app(app)
 
-# Naive database setup
-try:
-    init_db_command()
-except sqlite3.OperationalError:
-    pass
+# app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+#
+# login_manager = LoginManager()
+# login_manager.init_app(app)
+#
+# # Naive database setup
+# try:
+#     init_db_command()
+# except sqlite3.OperationalError:
+#     pass
 
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
+# client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
@@ -78,18 +73,18 @@ def handle_bad_request(e):
     return 'bad request!', 400
 
 
-@login_manager.unauthorized_handler
-def unauthorized():
-    return "You must be logged in to access this content.", 403
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
-
-def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
+# @login_manager.unauthorized_handler
+# def unauthorized():
+#     return "You must be logged in to access this content.", 403
+#
+#
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.get(user_id)
+#
+#
+# def get_google_provider_cfg():
+#     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
 @app.route('/')
@@ -113,78 +108,78 @@ def ping():
     return redirect(url_for("index"))
 
 
-@app.route("/login")
-def login():
-    google_provider_cfg = get_google_provider_cfg()
-    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-    request_uri = client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
-        scope=["openid", "email", "profile"],
-    )
-    return redirect(request_uri)
-
-
-@app.route("/login/callback")
-def callback():
-    # Get authorization code Google sent back to you
-    code = request.args.get("code")
-
-    # Find out what URL to hit to get tokens that allow you to ask for
-    # things on behalf of a user
-    google_provider_cfg = get_google_provider_cfg()
-    token_endpoint = google_provider_cfg["token_endpoint"]
-
-    # Prepare and send request to get tokens! Yay tokens!
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url,
-        redirect_url=request.base_url,
-        code=code,
-    )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-    )
-
-    # Parse the tokens!
-    client.parse_request_body_response(json.dumps(token_response.json()))
-
-    # Now that we have tokens (yay) let's find and hit URL
-    # from Google that gives you user's profile information,
-    # including their Google Profile Image and Email
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body)
-
-    # We want to make sure their email is verified.
-    # The user authenticated with Google, authorized our
-    # app, and now we've verified their email through Google!
-    if userinfo_response.json().get("email_verified"):
-        unique_id = userinfo_response.json()["sub"]
-        users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
-        users_name = userinfo_response.json()["given_name"]
-    else:
-        return "User email not available or not verified by Google.", 400
-
-    # Create a user in our db with the information provided
-    # by Google
-    user = User(
-        id_=unique_id, name=users_name, email=users_email, profile_pic=picture
-    )
-
-    # Doesn't exist? Add to database
-    if not User.get(unique_id):
-        User.create(unique_id, users_name, users_email, picture)
-
-    # Begin user session by logging the user in
-    login_user(user)
-
-    # Send user back to homepage
-    return redirect(url_for("index"))
+# @app.route("/login")
+# def login():
+#     google_provider_cfg = get_google_provider_cfg()
+#     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+#     request_uri = client.prepare_request_uri(
+#         authorization_endpoint,
+#         redirect_uri=request.base_url + "/callback",
+#         scope=["openid", "email", "profile"],
+#     )
+#     return redirect(request_uri)
+#
+#
+# @app.route("/login/callback")
+# def callback():
+#     # Get authorization code Google sent back to you
+#     code = request.args.get("code")
+#
+#     # Find out what URL to hit to get tokens that allow you to ask for
+#     # things on behalf of a user
+#     google_provider_cfg = get_google_provider_cfg()
+#     token_endpoint = google_provider_cfg["token_endpoint"]
+#
+#     # Prepare and send request to get tokens! Yay tokens!
+#     token_url, headers, body = client.prepare_token_request(
+#         token_endpoint,
+#         authorization_response=request.url,
+#         redirect_url=request.base_url,
+#         code=code,
+#     )
+#     token_response = requests.post(
+#         token_url,
+#         headers=headers,
+#         data=body,
+#         auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+#     )
+#
+#     # Parse the tokens!
+#     client.parse_request_body_response(json.dumps(token_response.json()))
+#
+#     # Now that we have tokens (yay) let's find and hit URL
+#     # from Google that gives you user's profile information,
+#     # including their Google Profile Image and Email
+#     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+#     uri, headers, body = client.add_token(userinfo_endpoint)
+#     userinfo_response = requests.get(uri, headers=headers, data=body)
+#
+#     # We want to make sure their email is verified.
+#     # The user authenticated with Google, authorized our
+#     # app, and now we've verified their email through Google!
+#     if userinfo_response.json().get("email_verified"):
+#         unique_id = userinfo_response.json()["sub"]
+#         users_email = userinfo_response.json()["email"]
+#         picture = userinfo_response.json()["picture"]
+#         users_name = userinfo_response.json()["given_name"]
+#     else:
+#         return "User email not available or not verified by Google.", 400
+#
+#     # Create a user in our db with the information provided
+#     # by Google
+#     user = User(
+#         id_=unique_id, name=users_name, email=users_email, profile_pic=picture
+#     )
+#
+#     # Doesn't exist? Add to database
+#     if not User.get(unique_id):
+#         User.create(unique_id, users_name, users_email, picture)
+#
+#     # Begin user session by logging the user in
+#     login_user(user)
+#
+#     # Send user back to homepage
+#     return redirect(url_for("index"))
 
 
 @app.route("/logout")
@@ -280,9 +275,9 @@ def transformation():
                 preds_html[i].append([img_loc, image_id, logits, diagnosis, regression, ordinal])
                 item = {
                     'invocation_time': {'S': str(invocation_time)},
-                    'user_id': {'S', str(current_user.id)},
-                    'name': {'S', str(current_user.name)},
-                    'email': {'S', str(current_user.email)},
+                    # 'user_id': {'S', str(current_user.id)},
+                    # 'name': {'S', str(current_user.name)},
+                    # 'email': {'S', str(current_user.email)},
                     'image_id': {'S': image_id},
                     'logits': {'S': str(logits)},
                     'diagnosis': {'S': diagnosis},
@@ -311,6 +306,6 @@ if __name__ == "__main__":
                          local_path=path.join(model_dir, checkpoint_fname))
     ClassificationService.get_model()  # You can insert a health check here
     print(f'Initialising app on {requests.get("http://ip.42.pl/raw").text}:{port} with dubug={debug}')
-    app.run(host="0.0.0.0", port=port)  # for running on instances
-    # app.run(host="0.0.0.0", port=port, debug=debug, ssl_context="adhoc")  # for running on instances
+    app.run(host="0.0.0.0", port=port, debug=debug)  # for running on instances
+    # app.run(host="0.0.0.0", port=port, ssl_context="adhoc")  # for running on instances
     # app.run(debug=True, ssl_context="adhoc")
