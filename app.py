@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+import gc
 import json
 import os
 import sqlite3
@@ -62,8 +63,6 @@ debug = False
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
-
-app.config['UPLOAD_FOLDER'] = data_dir
 app.config['MAX_CONTENT_LENGTH'] = 20 * 4096 * 4096
 
 login_manager = LoginManager()
@@ -254,6 +253,7 @@ def allowed_file(filename):
 
 @app.route('/', methods=['POST'])
 def transformation():
+    gc.collect()  # try to free some memory.
     ClassificationService.cleanDirectory()
 
     print(f'Found a {request.method} request for prediction...')
@@ -289,6 +289,7 @@ def transformation():
                 preds_html.append([img_url, image_id, logits, diagnosis, regression, ordinal])
                 item = {
                     'invocation_time': {'S': str(invocation_time)},
+                    'image_id': {'S': image_id},
                     # 'user_id': {'S': str(current_user.id)},
                     # 'name': {'S': str(current_user.name)},
                     # 'email': {'S': str(current_user.email)},
@@ -301,6 +302,7 @@ def transformation():
                 ClassificationService.DynamoDBPutItem(item=item)
                 ClassificationService.upload_to_s3_(bucket=data_bucket, channel="image", filepath=image_locs[i])
 
+                gc.collect()
             return render_template("index.html", user_authenticated=False,
                                    preds_html=preds_html, current_user=current_user)
     return redirect(url_for("index"))
