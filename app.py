@@ -91,10 +91,10 @@ def get_google_provider_cfg():
 @app.route('/')
 def index():
     preds_html = []
-    preds_html[0].append([None, "static/img/10011_right_820x615.png".split('/')[-1],
-                          [[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
-                           [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
-                          '0- No DR', 0.40505, 2.024725])
+    preds_html.append([None, "static/img/10011_right_820x615.png".split('/')[-1],
+                       [[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
+                        [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
+                       '0- No DR', 0.40505, 2.024725])
     if current_user.is_authenticated:
         return render_template("index.html", user_authenticated=True,
                                preds_html=preds_html, current_user=current_user)
