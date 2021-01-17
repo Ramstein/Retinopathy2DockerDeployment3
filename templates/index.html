@@ -54,6 +54,8 @@
 
 
 
+
+
 </style>
 
 <body>
@@ -190,11 +192,11 @@
                         <input type="file" id="image" name="image" class="form-control" multiple required autofocus>
                         <br>
                         <button class="btn btn-lg btn-primary1 btn-block" type="submit">Predict</button>
-<!--                        {% if user_authenticated %}-->
-<!--                        <button class="btn btn-lg btn-primary1 btn-block" type="submit">Predict</button>-->
-<!--                        {% else %}-->
-<!--                        <button class="btn btn-lg btn-primary1 btn-block" type="submit" disabled>Predict</button>-->
-<!--                        {% endif %}-->
+                        <!--                        {% if user_authenticated %}-->
+                        <!--                        <button class="btn btn-lg btn-primary1 btn-block" type="submit">Predict</button>-->
+                        <!--                        {% else %}-->
+                        <!--                        <button class="btn btn-lg btn-primary1 btn-block" type="submit" disabled>Predict</button>-->
+                        <!--                        {% endif %}-->
                         <br>
                     </form>
                 </div>
@@ -202,19 +204,7 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <h5 style="padding-right:112px;">Predictions</h5>
-                <table class="table table-striped table-sm">
-                    <thead>
-                    <tr>
-                        <th style="padding-right:145px;">ID</th>
-                        <th>Prediction</th>
-                        <th>Severity</th>
-                        <!--                        <th>Diagnosis</th>-->
-                        <th style="padding-left:30;">Regression</th>
-                        <th>Ordinal</th>
-                    </tr>
-                    </thead>
-                </table>
+                <h5>Predictions</h5>
             </div>
             {% for row in preds_html %}
             <!--                    preds_html[0].append([None, "static/img/10011_right_820x615.png".split('/')[-1],-->
@@ -237,16 +227,16 @@
 
                 <div class="table-responsive left_margin">
                     <table class="table table-striped table-sm">
-                        <!--                        <thead>-->
-                        <!--                        <tr>-->
-                        <!--                            <th>ID</th>-->
-                        <!--                            <th>Prediction</th>-->
-                        <!--                            <th>Severity</th>-->
-                        <!--                            &lt;!&ndash;                        <th>Diagnosis</th>&ndash;&gt;-->
-                        <!--                            <th>Regression</th>-->
-                        <!--                            <th>Ordinal</th>-->
-                        <!--                        </tr>-->
-                        <!--                        </thead>-->
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Prediction</th>
+                            <th>Severity</th>
+                            <!--                        <th>Diagnosis</th>-->
+                            <th>Regression</th>
+                            <th>Ordinal</th>
+                        </tr>
+                        </thead>
                         <tbody>
                         <tr>
                             <td>{{row[1]}}</td>
@@ -293,8 +283,6 @@
                 </div>
             </div>
             {% endfor %}
-
-
         </main>
     </div>
 </div>
@@ -308,6 +296,8 @@
 
 
 
+
+
 </script>
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/popper.min.js"></script>
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/bootstrap.min.js"></script>
@@ -316,6 +306,8 @@
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/feather.min.js"></script>
 <script>
 		feather.replace()
+
+
 
 
 
