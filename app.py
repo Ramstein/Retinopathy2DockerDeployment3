@@ -306,6 +306,5 @@ if __name__ == "__main__":
                          local_path=path.join(model_dir, checkpoint_fname))
     ClassificationService.get_model()  # You can insert a health check here
     print(f'Initialising app on {requests.get("http://ip.42.pl/raw").text}:{port} with dubug={debug}')
-    app.run(host="0.0.0.0", port=port)  # for running on instances
-    # app.run(host="0.0.0.0", port=port, debug=debug, ssl_context="adhoc")  # for running on instances
+    app.run(host="0.0.0.0", port=port, debug=debug, ssl_context="adhoc")  # for running on instances
     # app.run(debug=True, ssl_context="adhoc")
