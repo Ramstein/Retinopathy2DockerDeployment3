@@ -29,8 +29,12 @@ from db import init_db_command
 from inference import model_fn, predict_fn
 from user import User
 
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+# GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
+# GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+
+GOOGLE_CLIENT_ID = ""
+GOOGLE_CLIENT_SECRET = ""
+
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
@@ -250,10 +254,11 @@ def transformation():
         if image_files:
             print(f'Saving image file')
             print(image_files)
-            for image_file in image_files:
-                img_path = os.path.join(data_dir, image_file.filename)
-                image_locs.append(img_path)
-                image_file.save(img_path)
+            image_file = image_files
+            # for image_file in image_files:
+            img_path = os.path.join(data_dir, image_file.filename)
+            image_locs.append(img_path)
+            image_file.save(img_path)
             model = ClassificationService.get_model()
             predictions = ClassificationService.InputPredictOutput(model=model, image_locs=image_locs)
             print("rendering index.html with predictions and image file,")
@@ -306,5 +311,6 @@ if __name__ == "__main__":
                          local_path=path.join(model_dir, checkpoint_fname))
     ClassificationService.get_model()  # You can insert a health check here
     print(f'Initialising app on {requests.get("http://ip.42.pl/raw").text}:{port} with dubug={debug}')
-    app.run(host="0.0.0.0", port=port, debug=debug, ssl_context="adhoc")  # for running on instances
+    app.run(host="0.0.0.0", port=port)  # for running on instances
+    # app.run(host="0.0.0.0", port=port, debug=debug, ssl_context="adhoc")  # for running on instances
     # app.run(debug=True, ssl_context="adhoc")
