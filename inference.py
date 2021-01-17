@@ -103,14 +103,11 @@ def model_fn(model_dir, model_name=None, checkpoint_fname='', apply_softmax=True
     return model
 
 
-def predict_fn(model, need_features=False, img_loc='', data_dir=''):
-    image_locs = []
-    image_locs.append(img_loc)
-
+def predict_fn(model, need_features=False, image_locs='', data_dir=''):
     image_df = DataFrame(image_locs, columns=['id_code'])
-    image_paths = image_df['id_code'].apply(lambda x: image_with_name_in_dir(data_dir, x))
+    image_paths = image_df['id_code'].apply(
+        lambda x: image_with_name_in_dir(data_dir, x))  # only checks that image is available or not
 
-    # Preprocessing the images
     dataset = run_image_preprocessing(
         params=params,
         apply_softmax=True,

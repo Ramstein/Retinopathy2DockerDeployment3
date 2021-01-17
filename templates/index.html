@@ -41,6 +41,36 @@
 		border-color: #ab3c31;
 		box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, 0.5);
 	}
+	.rounded-corners{
+	border-radius:50%;
+	}
+	.rounded-corners-sample{
+	border-radius:10px;
+	}
+	.left_margin{
+	    margin-left:5px
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 </style>
@@ -50,11 +80,25 @@
     <a class="navbar-brand col-sm-3 col-md-2 mr-0 text-center" href="https://bions.us">
         <img src="https://endpoint-app.s3.amazonaws.com/retinopathy2/bions_logo_150x34.png" alt="BIONS"
              width="100" height="20"></a>
-    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <input class="form-control form-control-dark mr-sm-2 w-100" type="text" placeholder="Search" aria-label="Search">
     <ul class="navbar-nav px-3">
-        <li class="nav-item text-nowrap">
-            <a class="nav-link" href="https://bions.us">Sign out</a>
-        </li>
+
+        {% if user_authenticated %}
+
+        <div class="d-flex justify-content-between">
+            <p style="background-color:#343A40;color:white;">{{current_user.name}}</p>
+            <div>
+                <img src={{current_user.profile_pic}} class="wdn-stretch rounded-corners left_margin"
+                     width="40" height="40" alt="Google profile pic"/>
+
+            </div>
+            <li class="nav-item text-nowrap">
+                <a class="button left_margin" href="/logout">Logout</a>
+                {% else %}
+                <a class="button left_margin" href="/login">Google Login</a>
+                {% endif %}
+            </li>
+        </div>
     </ul>
 </nav>
 
@@ -161,95 +205,144 @@
             <div class="d-flex justify-content-between">
                 <div>
                     <form class="form-upload" method=post enctype=multipart/form-data><h6
-                            class="h6 mb-3 font-weight-normal">Upload image of Fundus Photography</h6>
-                        <input type="file" id="image" name="image" class="form-control" required autofocus>
+                            class="h6 mb-3 font-weight-normal">Upload images of Fundus Photography (max=100)</h6>
+                        <input type="file" id="images" name="images" class="form-control" multiple required autofocus>
                         <br>
-
+                        {% if user_authenticated %}
                         <button class="btn btn-lg btn-primary1 btn-block" type="submit">Predict</button>
+                        {% else %}
+                        <button class="btn btn-lg btn-primary1 btn-block" type="submit" disabled>Predict</button>
+                        {% endif %}
                         <br>
                     </form>
                 </div>
-                <div>
-                    {% if image_loc %}
-                    <div><img class="mb-4" src={{image_loc}} alt="" width="550" height="413"></div>
-                    {% else %}
-                    <div><img class="mb-4" src="https://endpoint-app.s3.amazonaws.com/retinopathy2/10011_right_550x413.png"
-                              alt="" width="550" height="413">
-                    </div>
-                    {% endif %}
-                </div>
+
             </div>
 
-
-            <h5>Predictions</h5>
-            <div class="table-responsive">
+            <div class="d-flex justify-content-between">
+                <h5 style="padding-right:112px;">Predictions</h5>
                 <table class="table table-striped table-sm">
                     <thead>
                     <tr>
-                        <th>ID</th>
+                        <th style="padding-right:145px;">ID</th>
                         <th>Prediction</th>
                         <th>Severity</th>
-<!--                        <th>Diagnosis</th>-->
-                        <th>Regression</th>
+                        <!--                        <th>Diagnosis</th>-->
+                        <th style="padding-left:30;">Regression</th>
                         <th>Ordinal</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr>
-                        <td>{{image_id}}</td>
-                        <td>{{logits[0][0]}}</td>
-                        <td>{{logits[0][1]}}</td>
-<!--                        <td>{{diagnosis}}</td>-->
-                        <td>{{regression}}</td>
-                        <td>{{ordinal}}</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>{{logits[1][0]}}</td>
-                        <td>{{logits[1][1]}}</td>
-<!--                        <td></td>-->
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>{{logits[2][0]}}</td>
-                        <td>{{logits[2][1]}}</td>
-<!--                        <td></td>-->
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>{{logits[3][0]}}</td>
-                        <td>{{logits[3][1]}}</td>
-<!--                        <td></td>-->
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>{{logits[4][0]}}</td>
-                        <td>{{logits[4][1]}}</td>
-<!--                        <td></td>-->
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    </tbody>
                 </table>
             </div>
+            {% for row in preds_html %}
+            <!--                    preds_html[0].append([None, "static/img/10011_right_820x615.png".split('/')[-1],-->
+            <!--                          [[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],-->
+            <!--                           [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],-->
+            <!--                          '0- No DR', 0.40505, 2.024725])-->
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    {% if row[0] %}
+                    <div><img class="mb-4 rounded-corners-sample" src={{row[0]}} alt="sample" width="208" height="156">
+                    </div>
+                    {% else %}
+                    <div><img class="mb-4 rounded-corners-sample"
+                              src="https://endpoint-app.s3.amazonaws.com/retinopathy2/10011_right_550x413.png"
+                              alt="sample" width="208" height="156">
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="table-responsive left_margin">
+                    <table class="table table-striped table-sm">
+                        <!--                        <thead>-->
+                        <!--                        <tr>-->
+                        <!--                            <th>ID</th>-->
+                        <!--                            <th>Prediction</th>-->
+                        <!--                            <th>Severity</th>-->
+                        <!--                            &lt;!&ndash;                        <th>Diagnosis</th>&ndash;&gt;-->
+                        <!--                            <th>Regression</th>-->
+                        <!--                            <th>Ordinal</th>-->
+                        <!--                        </tr>-->
+                        <!--                        </thead>-->
+                        <tbody>
+                        <tr>
+                            <td>{{row[1]}}</td>
+                            <td>{{row[2][0][0]}}</td>
+                            <td>{{row[2][0][1]}}</td>
+                            <!--                        <td>{{row[3]}}</td>-->
+                            <td>{{row[4]}}</td>
+                            <td>{{row[5]}}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>{{row[2][1][0]}}</td>
+                            <td>{{row[2][1][1]}}</td>
+                            <!--                        <td></td>-->
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>{{row[2][2][0]}}</td>
+                            <td>{{row[2][2][1]}}</td>
+                            <!--                        <td></td>-->
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>{{row[2][3][0]}}</td>
+                            <td>{{row[2][3][1]}}</td>
+                            <!--                        <td></td>-->
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>{{row[2][4][0]}}</td>
+                            <td>{{row[2][4][1]}}</td>
+                            <!--                        <td></td>-->
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+
+
         </main>
     </div>
 </div>
 
-<!-- Bootstrap core JavaScript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
 <script src="code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
 </script>
 <script>
 		window.jQuery || document.write('<script src="templates/static/js/bootstrap.min.js"><\/script>')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 </script>
@@ -260,6 +353,27 @@
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/feather.min.js"></script>
 <script>
 		feather.replace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 </script>
