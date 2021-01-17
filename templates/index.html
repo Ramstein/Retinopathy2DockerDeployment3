@@ -52,6 +52,7 @@
 	}
 
 
+
 </style>
 
 <body>
@@ -187,11 +188,11 @@
                             class="h6 mb-3 font-weight-normal">Upload images of Fundus Photography (max=100)</h6>
                         <input type="file" id="image" name="image" class="form-control" multiple required autofocus>
                         <br>
+                        {% if user_authenticated %}
                         <button class="btn btn-lg btn-primary1 btn-block" type="submit">Predict</button>
-                        <!--                        {% if user_authenticated %}-->
-                        <!--                        {% else %}-->
-                        <!--                        <button class="btn btn-lg btn-primary1 btn-block" type="submit" disabled>Predict</button>-->
-                        <!--                        {% endif %}-->
+                        {% else %}
+                        <button class="btn btn-lg btn-primary1 btn-block" type="submit" disabled>Predict</button>
+                        {% endif %}
                         <br>
                     </form>
                 </div>
@@ -303,6 +304,7 @@
 		window.jQuery || document.write('<script src="templates/static/js/bootstrap.min.js"><\/script>')
 
 
+
 </script>
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/popper.min.js"></script>
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/bootstrap.min.js"></script>
@@ -311,6 +313,7 @@
 <script src="https://endpoint-app.s3.amazonaws.com/retinopathy2/feather.min.js"></script>
 <script>
 		feather.replace()
+
 
 
 </script>
