@@ -55,7 +55,7 @@ need_features = False
 tta = None
 
 apply_softmax = True
-port = 8080
+port = 80
 debug = False
 
 app = Flask(__name__)
