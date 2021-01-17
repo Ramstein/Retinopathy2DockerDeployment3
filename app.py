@@ -245,10 +245,11 @@ def transformation():
 
     print(f'Found a {request.method} request for prediction...')
     if request.method == "POST":
-        image_files = request.files["images"]
+        image_files = request.files["image"]
         image_locs = []
         if image_files:
-            print(f'Saving {len(image_files)} image file')
+            print(f'Saving image file')
+            print(image_files)
             for image_file in image_files:
                 img_path = os.path.join(data_dir, image_file.filename)
                 image_locs.append(img_path)
@@ -265,7 +266,7 @@ def transformation():
                 for pred, cls in zip(predictions['logits'][i], CLASS_NAMES):
                     logits.append([round(pred, 5), cls])
 
-                img_loc = f"https://diabetic-retinopathy-data-from-radiology.s3.amazonaws.com/image/{image_files[0].filename}"
+                img_loc = f"https://diabetic-retinopathy-data-from-radiology.s3.amazonaws.com/image/{image_locs[i].split('/')[-1]}"
                 image_id = predictions['image_id'][i]
                 diagnosis = int(predictions['diagnosis'][i])
                 # diagnosis = f"{diagnosis}- {CLASS_NAMES[diagnosis]}"
@@ -305,5 +306,6 @@ if __name__ == "__main__":
                          local_path=path.join(model_dir, checkpoint_fname))
     ClassificationService.get_model()  # You can insert a health check here
     print(f'Initialising app on {requests.get("http://ip.42.pl/raw").text}:{port} with dubug={debug}')
-    app.run(host="0.0.0.0", port=port, debug=debug, ssl_context="adhoc")  # for running on instances
+    app.run(host="0.0.0.0", port=port)  # for running on instances
+    # app.run(host="0.0.0.0", port=port, debug=debug, ssl_context="adhoc")  # for running on instances
     # app.run(debug=True, ssl_context="adhoc")
