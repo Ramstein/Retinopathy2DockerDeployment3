@@ -49,6 +49,7 @@ data_dir = '/home/endpoint/data'
 
 need_features = False
 tta = None
+
 apply_softmax = True
 port = 8888
 debug = True
