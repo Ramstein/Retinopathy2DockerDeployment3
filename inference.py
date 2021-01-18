@@ -23,7 +23,7 @@ from Retinopathy2.retinopathy.train_utils import report_checkpoint
 
 num_workers = multiprocessing.cpu_count()
 params = {}
-image_size = (512, 512)
+image_size = (1024, 1024)
 
 
 def image_with_name_in_dir(dirname, image_id):
