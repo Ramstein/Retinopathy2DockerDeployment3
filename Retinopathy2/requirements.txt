@@ -6,7 +6,7 @@ catalyst==19.7.4
 tqdm
 albumentations==0.3.2
 scikit-learn==0.21.3
-flask==1.1.1
+flask
 gevent==1.4.0
 gunicorn
 pretrainedmodels

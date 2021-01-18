@@ -234,17 +234,15 @@ class ClassificationService(object):
     def DynamoDBPutItem(cls, item):
         if cls.dynamodb_cli is None:
             cls.dynamodb_cli = boto3.client('dynamodb', region_name=dynamodb_region)
-        else:
-            res = cls.dynamodb_cli.put_item(TableName=dynamodb_retinopathy_tablename, Item=item)
+        res = cls.dynamodb_cli.put_item(TableName=dynamodb_retinopathy_tablename, Item=item)
 
     @classmethod
     def upload_to_s3_(cls, bucket, channel, filepath):  # public=true, if not file won't be visible after prediction
         if cls.s3_res_bucket is None:
             cls.s3_res_bucket = boto3.resource('s3', region_name=region).Bucket(bucket)
-        else:
-            data = open(filepath, "rb")
-            key = channel + '/' + str(filepath).split('/')[-1]
-            cls.s3_res_bucket.put_object(Key=key, Body=data, ACL='public-read')
+        data = open(filepath, "rb")
+        key = channel + '/' + str(filepath).split('/')[-1]
+        cls.s3_res_bucket.put_object(Key=key, Body=data, ACL='public-read')
 
 
 def allowed_file(filename):
