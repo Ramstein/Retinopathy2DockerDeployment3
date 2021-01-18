@@ -25,13 +25,6 @@ num_workers = multiprocessing.cpu_count()
 params = {}
 image_size = (512, 512)
 
-def input_fn():
-    pass
-
-
-def output_fn():
-    pass
-
 
 def image_with_name_in_dir(dirname, image_id):
     for ext in ['png', 'jpg', 'jpeg', 'tif']:
