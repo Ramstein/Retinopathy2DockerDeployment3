@@ -47,7 +47,8 @@ dynamodb_region = 'ap-south-1'
 dynamodb_retinopathy_tablename = 'retinopathy2'
 model_name = 'seresnext50d_gwap'
 model_bucket = 'dataset-retinopathy'
-checkpoint_fname = 'model.pth'
+# checkpoint_fname = 'model.pth'
+checkpoint_fname = 'seresnext50d_gwap_1024_medium_aptos2019_aptos2015_fold0_confident_rosalind.pth'
 model_dir = '/home/model'
 
 data_bucket = "diabetic-retinopathy-data-from-radiology"
