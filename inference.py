@@ -40,7 +40,7 @@ def run_image_preprocessing(
         image_df: DataFrame,
         image_paths=None,
         preprocessing=None,
-        image_size=None,
+        image_size=image_size,
         crop_black=True,
         **kwargs) -> RetinopathyDataset:
     if image_paths is not None:
