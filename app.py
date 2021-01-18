@@ -279,7 +279,13 @@ def transformation():
                 for pred, cls in zip(predictions['logits'][i], CLASS_NAMES):
                     logits.append([round(pred, 5), cls])
 
-                img_url = f"https://diabetic-retinopathy-data-from-radiology.s3.amazonaws.com/image/{image_locs[i].split('/')[-1]}"
+                # sorting the logits in descending
+                for j in range(0, len(CLASS_NAMES)):
+                    for j_ in range(0, len(CLASS_NAMES) - j - 1):
+                        if logits[j_][0] < logits[j_ + 1][0]:
+                            logits[j_], logits[j_ + 1] = logits[j_ + 1], logits[j_]
+
+                img_url = f"https://{data_bucket}.s3.amazonaws.com/image/{image_locs[i].rsplit('/', 1)[1]}"
                 image_id = predictions['image_id'][i]
                 diagnosis = int(predictions['diagnosis'][i])
                 # diagnosis = f"{diagnosis}- {CLASS_NAMES[diagnosis]}"
