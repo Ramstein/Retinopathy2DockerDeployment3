@@ -322,6 +322,7 @@ if __name__ == "__main__":
         makedirs(model_dir, exist_ok=True)
 
     if not path.isfile(path.join(model_dir, checkpoint_fname)):
+        # https://dataset-retinopathy.s3.amazonaws.com/deployment/seresnext50d_gwap_1024_medium_aptos2019_aptos2015_fold0_confident_rosalind.pth
         download_from_s3(region=region, bucket=model_bucket,
                          s3_filename='deployment/' + checkpoint_fname,
                          local_path=path.join(model_dir, checkpoint_fname))
