@@ -100,6 +100,8 @@ def get_google_provider_cfg():
 @app.route('/')
 def index():
     preds_html = []
+    src = "https://endpoint-app-ap1.s3.ap-south-1.amazonaws.com/webapp/static/img/10011_right_550x413.png"
+
     preds_html.append([None, "static/img/10011_right_820x615.png".split('/')[-1],
                        [[0.84909, 'No DR'], [0.09395, 'Mild'], [0.04669, 'Moderate'],
                         [0.00633, 'Severe'], [0.00392, 'Proliferative DR']],
