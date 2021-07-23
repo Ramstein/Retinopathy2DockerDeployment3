@@ -42,16 +42,16 @@ GOOGLE_DISCOVERY_URL = (
 )
 
 '''Not Changing variables'''
-region = 'us-east-1'
+region = 'ap-south-1'
 dynamodb_region = 'ap-south-1'
 dynamodb_retinopathy_tablename = 'retinopathy2'
 model_name = 'seresnext50d_gwap'
-model_bucket = 'dataset-retinopathy'
+model_bucket = 'dataset-retinopathy-ap1'
 # checkpoint_fname = 'model.pth'
 checkpoint_fname = 'seresnext50d_gwap_1024_medium_aptos2019_aptos2015_fold0_confident_rosalind.pth'
 model_dir = '/home/model'
 
-data_bucket = "diabetic-retinopathy-data-from-radiology"
+data_bucket = "diabetic-retinopathy-data-from-radiology-ap1"
 data_dir = '/home/endpoint/data'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', '.tif'}
 
