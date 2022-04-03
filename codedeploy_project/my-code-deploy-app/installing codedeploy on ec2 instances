@@ -1,0 +1,56 @@
+
+
+sudo yum install ruby -y
+
+# Download codedeploy install file
+# while creating a application and deploymentGroup for codedeploy in the region ap-south-1,
+it gives the option to install codedeploy for the first time and update with chron jobs.
+
+# https://docs.aws.amazon.com/codedeploy/latest/userguide/codedeploy-agent-operations-install-ubuntu.html
+curl https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install > /home/ec2-user/install
+cd /home/ec2-user
+chmod +x ./install 
+sudo ./install auto
+
+# Check that codedeploy is running or not
+sudo service codedeploy-agent status
+
+rm install
+
+# associate the IAM role to your deployment server having these two policies having role
+AmazonEC2RoleforSSM
+AmazonEC2RoleforAWSCodeDeploy
+
+# Creating codedeploy
+Create the codedeploy application and deployment on the console
+
+zip revision-v2.zip appspec.yml restart_app.sh update_app.sh index.html
+
+aws s3api create-bucket --bucket my-code-deploy-rev --region ap-south-1
+aws s3 cp revision-v2.zip s3://my-code-deploy-rev/revisions/v2.zip
+
+
+# for codepipline
+1. create a codecommit repository and link the git commit, push and pull with that repository
+2. create a codepipiline with this respository and the instance, role, finally codedeploy, all for the same application
+    and deploymentGroup. 
+3. add, commit, push, codepipiline will issue the deploy, and you will see the changes in few seconds.
+
+
+
+aurora mysql endpoint: database-2.cluster-crmujukmtwp1.ap-south-1.rds.amazonaws.com
+
+mysql --user=admin --password=auroradb -h database-2.cluster-crmujukmtwp1.ap-south-1.rds.amazonaws.com
+
+
+# s3 cli
+#listing all of the bucket in account
+aws s3 ls
+#listing bucket file
+aws s3 ls s3://high-res-wallpaper
+#downloading a file to pwd
+aws s3 cp s3://high-res-wallpaper/1.jpg . 
+# uploading a local file to s3 bucket
+aws s3 cp 1.jpg s3://high-res-wallpaper 
+#presigned url
+aws s3 presign s3://high-res-wallpaper/1.jpg --expires-in 300
